@@ -1,6 +1,5 @@
 import requests
 import json
-from pprint import pprint
 
 url = "https://apps.lafayettela.gov/L911/WebService1.asmx/getCurrentTrafficConditions"
 
