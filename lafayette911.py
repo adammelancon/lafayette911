@@ -1,54 +1,54 @@
-import requests, re, json, unicodedata
-from bs4 import BeautifulSoup
-from datetime import datetime
+import requests
+import json
+from pprint import pprint
 
-incidents = []
-incidents_clean = []
+url = "https://apps.lafayettela.gov/L911/WebService1.asmx/getCurrentTrafficConditions"
 
-def get_time():
-    global incidents_clean
-    now = datetime.now()
-    date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-    return "Last Ran - " + str(date_time)
 
-def soup_me():
-    global incidents
-    url = 'https://apps.lafayettela.gov/L911/Service2.svc/getTrafficIncidents'
-    myobj = {'name': 'e'}
-    r = requests.post(url, data = myobj)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    for tr in soup.find_all(target="_new"):
-        incidents.append(tr)
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Content-Type": "application/json; charset=utf-8",
+    "X-Requested-With": "XMLHttpRequest",
+    "Origin": "https://apps.lafayettela.gov",
+    "Referer": "https://apps.lafayettela.gov/L911/default",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "Pragma": "no-cache",
+    "Cache-Control": "no-cache",
+    "Content-Length": "0",
+    "TE": "trailers"
+}
 
-def check_incidents():
-    if not incidents:
-        ni = "No incidents at " + get_time()
-        print(ni)
-        with open('lafayette911.json', 'w') as outfile:
-            json.dump(ni, outfile)
-    else:
-        process_incidents()
+response = requests.post(url, headers=headers)
+json_data = json.loads(response.json()['d'])
 
-def process_incidents():
-    global incidents_clean
-    for row in incidents:
-        row = row.text
-        row = re.compile(r'(<[^>]+>)|(")|({)|(})').sub('', row)
-        row = row.strip('/}')
-        row = row.replace("\\", "")
-        row = unicodedata.normalize("NFKD",row)
-        incidents_clean.append(row)
+if response.status_code == 200:
+    # Do something with the response
+    # print(response.json())
+    #pprint(json_data)
+    pass
+else:
+    print(f"Error: {response.status_code}")
 
-    incidents_clean.append(get_time())
-    
-    with open('lafayette911.json', 'w') as outfile:
-        json.dump(incidents_clean, outfile)
 
-def display_incidents():
-    print(incidents_clean)
+def clean_location(location):
+    # Replace / with , and remove extra spaces
+    return ' '.join(location.replace('/', ', ').split())
 
-soup_me()
-check_incidents()
-display_incidents()
+def format_incident_report(data):
+    #report = "### Incident Reports (Status: {})\n\n".format(data['status'].upper())
+    report = ""
+    for i, incident in enumerate(data['incidents'], start=1):
+        report += "Time:   {}\n".format(incident['reported'])
+        report += "Loc:    {}\n".format(clean_location(incident['location']))
+        report += "Cause:  {}\n".format(incident['cause'].title())
+        report += "Agency: {}\n\n".format(incident['assisting'].title())
 
-    
+    return report
+
+# Print the formatted report
+print(format_incident_report(json_data))
