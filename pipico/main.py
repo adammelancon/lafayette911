@@ -37,27 +37,26 @@ led.off()
 is_vehicle_accident = False
 
 def has_vehicle_accident():
-    url = "https://apps.lafayettela.gov/L911/WebService1.asmx/getCurrentTrafficConditions"
-
+    url = "https://lafayette911.org/WebService1.asmx/getCurrentTrafficConditions"
     headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0",
-    "Accept": "application/json, text/javascript, */*; q=0.01",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Content-Type": "application/json; charset=utf-8",
-    "X-Requested-With": "XMLHttpRequest",
-    "Origin": "https://apps.lafayettela.gov",
-    "Referer": "https://apps.lafayettela.gov/L911/default",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "Pragma": "no-cache",
-    "Cache-Control": "no-cache",
-    "Content-Length": "0",
-    "TE": "trailers"
-    }
-    
-    response = urequests.post(url, headers=headers)
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Content-Type": "application/json; charset=utf-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Origin": "https://lafayette911.org",
+            "Connection": "keep-alive",
+            "Referer": "https://lafayette911.org/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache",
+            "Content-Length": "0",
+            "TE": "trailers"
+        }
+    response = requests.post(url, headers=headers)
     print(response)
     json_data = ujson.loads(response.json()['d'])
     #print(json_data)
